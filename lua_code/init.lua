@@ -9,6 +9,27 @@ dofile("network.lua")
 dofile("mqtt.lua")
 
 ----user app-----
+function topic_handler(data)
+    print("user topic handler")
+    if data ~= nil then
+        print(data)
+    end
+end
+mqtt_subscibe_callback(topic_user_data, topic_user_data_qos, topic_handler)
 
+humi = 0
+onoff = 0
+user_tmr = tmr.create()
+user_tmr:register(5000, tmr.ALARM_AUTO, function()
+        mqtt_publish_property(topic_event_post, {["hum"]=humi, ["Status"]=onoff}, 0)
+
+        onoff = (onoff+1)%2
+
+        humi = humi + 1
+        if humi >= 100 then
+            humi = 0
+        end
+    end)
+user_tmr:start()
 
 
