@@ -1,3 +1,8 @@
+--File name: mqtt.lua
+--Author: songdaw
+--Limitations: No commercial use
+--Function: mqtt clent, default connect to Aliyun IOT, provide external function for user app
+
 -----[Aili MQTT]---------
 ----------------------------
 ProductKey = "阿里云设备三元组ProductKey"

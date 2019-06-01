@@ -1,3 +1,8 @@
+--File name: netconfig.lua
+--Author: songdaw
+--Limitations: No commercial use
+--Function: webserver to config wifi, default ip:192.168.4.1
+
 ------Net config-------
 wifi.setmode(wifi.STATIONAP)
 ap_cfg={}

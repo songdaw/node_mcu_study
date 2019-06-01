@@ -1,3 +1,8 @@
+--File name: init.lua
+--Author: songdaw
+--Limitations: No commercial use
+--Function: init flow and user app
+
 tmr.delay(1000000)
 print("nodemcu start 0.1")
 tmr.delay(1000000)

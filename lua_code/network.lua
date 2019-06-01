@@ -1,3 +1,8 @@
+--File name: network.lua
+--Author: songdaw
+--Limitations: No commercial use
+--Function: connect to wifi, if fail, start a webserver which is used to config wifi 
+
 -----Network-----
 print("network start")
 
