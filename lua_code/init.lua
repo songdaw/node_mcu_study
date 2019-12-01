@@ -26,7 +26,7 @@ humi = 0
 onoff = 0
 user_tmr = tmr.create()
 user_tmr:register(5000, tmr.ALARM_AUTO, function()
-        mqtt_publish_property(topic_event_post, {["hum"]=humi, ["Status"]=onoff}, 0)
+        mqtt_publish_property(topic_event_post, "pc_control", {["hum"]=humi, ["Status"]=onoff})
 
         onoff = (onoff+1)%2
 

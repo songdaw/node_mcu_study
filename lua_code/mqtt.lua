@@ -2,20 +2,18 @@
 --Author: songdaw
 --Limitations: No commercial use
 --Function: mqtt clent, default connect to Aliyun IOT, provide external function for user app
-
+--[[
 -----[Aili MQTT]---------
 ----------------------------
 ProductKey = "阿里云设备三元组ProductKey"
 DeviceName = "阿里云设备三元组DeviceName"
-DeviceSecret = "阿里云设备三元组ProductKeyDeviceSecret"
+DeviceSecret = "阿里云设备三元组DeviceSecret"
 
 ClientId = wifi.sta.getmac()
 RegionId = "cn-shanghai"
 
-myMQTTport = 1883
-myMQTT = nil
-
 myMQTThost = ProductKey..".iot-as-mqtt."..RegionId..".aliyuncs.com"   --host
+myMQTTport = 1883
 myMQTTusername = DeviceName.."&"..ProductKey          --username
 
 topic_event_post = "/sys/"..ProductKey.."/"..DeviceName.."/thing/event/property/post"
@@ -25,16 +23,58 @@ topic_event_post_qos = 0
 topic_service_set_qos = 0
 topic_user_data_qos = 0
 
-mqtt_subscribe_table = {}
-
 --------MQTT------------------
 hmacdata="clientId"..ClientId.."deviceName"..DeviceName.."productKey"..ProductKey
 myMQTTpassword=crypto.toHex(crypto.hmac("sha1",hmacdata,DeviceSecret))
 myMQTTClientId=ClientId.."|securemode=3,signmethod=hmacsha1|"
+]]
+
+
+----[[
+-----[Tencent MQTT]---------
+function str2hex(str)
+    if (type(str)~="string") then
+	    return nil,"str2hex invalid input type"
+    end
+    if(str:len()%2~=0) then
+	    return nil,"str2hex invalid input lenth"
+	end
+    
+    local index=1
+    local ret=""
+    for index=1,str:len(),2 do
+        ret=ret..string.char(tonumber(str:sub(index,index+1),16))
+    end
+
+    return ret
+end
+----------------------------
+ProductID = "腾讯云设备三元组ProductID"
+DeviceName = "腾讯云设备三元组DeviceName"
+DeviceSecret = str2hex("腾讯云设备三元组DeviceSecret")    --decode from base64
+
+myMQTThost = ProductID..".iotcloud.tencentdevices.com"    --host
+myMQTTport = 1883
+
+topic_event_post = ProductID.."/"..DeviceName.."/event"
+topic_user_data = ProductID.."/"..DeviceName.."/user/mydata"
+topic_event_post_qos = 0
+topic_service_set_qos = 0
+topic_user_data_qos = 0
+
+connid = wifi.sta.getmac()
+--------MQTT------------------
+myMQTTClientId = ProductID..DeviceName
+myMQTTusername = ProductID..DeviceName..";12010126;"..connid..";1599406399"
+myMQTTpassword=crypto.toHex(crypto.hmac("sha1",myMQTTusername,DeviceSecret))..";hmacsha1"
+--]]
+
 ----mqtt client------
+myMQTT = nil
 myMQTT=mqtt.Client(myMQTTClientId, 120, myMQTTusername, myMQTTpassword) 
 
 ----mqtt connect------
+mqtt_subscribe_table = {}
 MQTTconnectFlag=0
 
 mqtt_tmr = tmr.create()
@@ -99,7 +139,7 @@ myMQTT:on("message", function(client, topic, data)
 end)
 
 ----external functions----
-function mqtt_publish_property(topic, pdata)
+function mqtt_publish_property(topic, target_device, pdata)
     local ret
 
     if MQTTconnectFlag == 0 or myMQTT==nil then
@@ -113,6 +153,7 @@ function mqtt_publish_property(topic, pdata)
     payload["version"] = "1.0.0"
     payload["params"] = pdata
     payload["method"] = "thing.event.property.post"
+    payload["device"] = target_device
 
     ok, json = pcall(sjson.encode, payload)
     if ok then

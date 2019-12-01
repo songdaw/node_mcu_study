@@ -150,7 +150,7 @@ end
 
 
 function handle_post(localsck, req)
-    print("handle post")
+    --print("handle post")
     local handled = 0
 
     for i=1,#req.post_handlers do
@@ -197,7 +197,7 @@ reqhandle = {
 }
 
 function reqhandle:parsehead(head)
-    print("head"..head)
+    --print("head"..head)
 
     local _, _, type, path = string.find(head, '([A-Z]+) (.+) HTTP')
 
@@ -206,7 +206,7 @@ function reqhandle:parsehead(head)
 end
 
 function reqhandle:parsebody(body)
-    print("body"..body)
+    --print("body"..body)
 
     self.body = body
 end
