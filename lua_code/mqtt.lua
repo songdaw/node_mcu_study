@@ -27,10 +27,13 @@ topic_user_data_qos = 0
 hmacdata="clientId"..ClientId.."deviceName"..DeviceName.."productKey"..ProductKey
 myMQTTpassword=crypto.toHex(crypto.hmac("sha1",hmacdata,DeviceSecret))
 myMQTTClientId=ClientId.."|securemode=3,signmethod=hmacsha1|"
+
+----mqtt client------
+myMQTT = nil
+myMQTT=mqtt.Client(myMQTTClientId, 120, myMQTTusername, myMQTTpassword) 
 ]]
 
-
-----[[
+--[[
 -----[Tencent MQTT]---------
 function str2hex(str)
     if (type(str)~="string") then
@@ -67,12 +70,33 @@ connid = wifi.sta.getmac()
 myMQTTClientId = ProductID..DeviceName
 myMQTTusername = ProductID..DeviceName..";12010126;"..connid..";1599406399"
 myMQTTpassword=crypto.toHex(crypto.hmac("sha1",myMQTTusername,DeviceSecret))..";hmacsha1"
---]]
 
 ----mqtt client------
 myMQTT = nil
 myMQTT=mqtt.Client(myMQTTClientId, 120, myMQTTusername, myMQTTpassword) 
+--]]
 
+-----[MQTT Go]---------
+----------------------------
+myMQTThost = "192.168.2.100"    --host
+myMQTTport = 1883
+
+topic_event_post = "home/esp/event"
+topic_user_data = "home/esp/user/mydata"
+topic_event_post_qos = 0
+topic_service_set_qos = 0
+topic_user_data_qos = 0
+
+connid = wifi.sta.getmac()
+--------MQTT------------------
+myMQTTClientId = "esp"..connid
+
+----mqtt client------
+myMQTT = nil
+myMQTT=mqtt.Client(myMQTTClientId, 120) 
+
+print("MQTT start")
+display_log("MQTT start")
 ----mqtt connect------
 mqtt_subscribe_table = {}
 MQTTconnectFlag=0
@@ -81,6 +105,8 @@ mqtt_tmr = tmr.create()
 mqtt_tmr:register(5000, tmr.ALARM_AUTO, function() 
         if myMQTT~=nil and network_connect_flag==1 and MQTTconnectFlag == 0 then
             print("Attempting client connect...")
+            display_log("Connect MQTT server")
+            display_log("Host:"..myMQTThost)
             myMQTT:connect(myMQTThost, myMQTTport, 0, MQTTSuccess, MQTTFailed)
         end
     end)
@@ -88,6 +114,7 @@ mqtt_tmr:start()
 
 function MQTTSuccess(client)
     print("MQTT connected")
+    display_message("")
     
     if #mqtt_subscribe_table > 0 then
         local subscribe_table = {}

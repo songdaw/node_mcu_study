@@ -10,8 +10,10 @@ ap_cfg.ssid = "ESP_mytest"
 ap_cfg.auth = wifi.OPEN
 wifi.ap.config(ap_cfg)
 
-httpserver = nil
+tmr.delay(5000000)
+print(wifi.ap.getip())
 
+httpserver = nil
 httpserver = net.createServer(net.TCP)
 httpserver:listen(80, function(conn)
     conn:on("receive", receiver)

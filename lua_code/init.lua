@@ -7,6 +7,10 @@ tmr.delay(1000000)
 print("nodemcu start 0.1")
 tmr.delay(1000000)
 
+----display----
+dofile("display.lua")
+display_log("nodemcu start...")
+
 ----start-----
 dofile("network.lua")
 
@@ -18,9 +22,12 @@ function topic_handler(data)
     print("user topic handler")
     if data ~= nil then
         print(data)
+        display_message(data)
     end
 end
+
 mqtt_subscibe_callback(topic_user_data, topic_user_data_qos, topic_handler)
+display_log("Subscribe done.")
 
 humi = 0
 onoff = 0
